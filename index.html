@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>TasksToDo</title>
+    <style>
+      * {
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      h1 {
+        width: 100%;
+        text-align: center;
+        background-color: rgb(37, 98, 126);
+        color: white;
+        margin: 0px;
+        font-size: 46px;
+        padding: 30px;
+      }
+      .line-through {
+        text-decoration: #333 line-through;
+      }
+      .img-box {
+        border-radius: 50%;
+        background-color: #333;
+        margin-right: 20px;
+        height: 35px;
+        width: 35px;
+      }
+      img {
+        height: 20px;
+        width: 20px;
+      }
+
+      li {
+        list-style: none;
+        color: white;
+        font-weight: bold;
+        padding: 10px 15px;
+        margin: 20px 0;
+        margin-left: 20px;
+        width: 80%;
+        background-color: rgb(189, 58, 108);
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        transition: 0.4s ease-in-out;
+      }
+
+      .check {
+        height: 20px;
+        width: 20px;
+      }
+    </style>
+  </head>
+  <body style="background: rgb(41, 35, 35)">
+    <h1>Task List</h1>
+    <ul></ul>
+    <script>
+      const electron = require("electron");
+      const { ipcRenderer } = electron;
+      const ul = document.querySelector("ul");
+
+      if (localStorage.getItem("tasks")) {
+        const tasks = JSON.parse(localStorage.getItem("tasks"));
+        tasks.forEach((task) => {
+          makeListItem(task);
+        });
+      }
+
+      ipcRenderer.on("item:add", (e, task) => {
+        const li = document.createElement("li");
+        const itemText = document.createTextNode(task);
+        const span = document.createElement("span");
+        const button = document.createElement("button");
+        const img = document.createElement("img");
+        img.setAttribute("src", "./assets/delete.png");
+        const spanner = document.createElement("span");
+        spanner.addEventListener("click", (e) => {
+          const s = e.target.parentNode;
+          const pn = s.parentNode;
+          console.log(pn.parentNode.innerText);
+          const tasks = JSON.parse(localStorage.getItem("tasks"));
+          tasks.forEach((task, index) => {
+            if (task == pn.parentNode.innerText) {
+              console.log(index);
+              tasks.splice(index, 1);
+              localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+          });
+          pn.parentNode.remove();
+        });
+        spanner.appendChild(img);
+        spanner.className = "img-box";
+        const checkBox = document.createElement("input");
+        checkBox.setAttribute("type", "checkbox");
+        checkBox.className = "check";
+        checkBox.addEventListener("click", (e) => {
+          const p = e.target.parentNode;
+          const l = p.parentNode;
+          l.classList.toggle("line-through");
+        });
+        span.appendChild(spanner);
+        span.appendChild(checkBox);
+        li.appendChild(itemText);
+        li.appendChild(span);
+        ul.appendChild(li);
+        store(task);
+      });
+
+      ipcRenderer.on("tasks:clear", () => {
+        localStorage.clear();
+        ul.innerHTML = "";
+      });
+
+      function store(task) {
+        if (localStorage.getItem("tasks")) {
+          const tasks = JSON.parse(localStorage.getItem("tasks"));
+          tasks.push(task);
+          localStorage.setItem("tasks", JSON.stringify(tasks));
+        } else {
+          const tasks = [];
+          tasks.push(task);
+          localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+      }
+
+      function makeListItem(task) {
+        const li = document.createElement("li");
+        const itemText = document.createTextNode(task);
+        const span = document.createElement("span");
+        const button = document.createElement("button");
+        const img = document.createElement("img");
+        img.setAttribute("src", "./assets/delete.png");
+        const spanner = document.createElement("span");
+        spanner.addEventListener("click", (e) => {
+          const s = e.target.parentNode;
+          const pn = s.parentNode;
+          const tasks = JSON.parse(localStorage.getItem("tasks"));
+          tasks.forEach((task, index) => {
+            if (task == pn.parentNode.innerText) {
+              console.log(index);
+              tasks.splice(index, 1);
+              localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+          });
+          pn.parentNode.remove();
+        });
+        spanner.appendChild(img);
+        spanner.className = "img-box";
+        const checkBox = document.createElement("input");
+        checkBox.setAttribute("type", "checkbox");
+        checkBox.className = "check";
+        checkBox.addEventListener("click", (e) => {
+          const p = e.target.parentNode;
+          const l = p.parentNode;
+          l.classList.toggle("line-through");
+        });
+        span.appendChild(spanner);
+        span.appendChild(checkBox);
+        li.appendChild(itemText);
+        li.appendChild(span);
+        ul.appendChild(li);
+      }
+    </script>
+  </body>
+</html>

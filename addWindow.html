@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Add Task</title>
+    <link rel="stylesheet" href="./addWindow.css" />
+  </head>
+  <body>
+    <form>
+      <div class="form__group field">
+        <input
+          type="input"
+          class="form__field"
+          placeholder="Name"
+          name="name"
+          id="name"
+          required
+          autofocus
+        />
+        <label for="name" class="form__label">Add Task</label>
+      </div>
+      <button type="submit">Add Task</button>
+    </form>
+    <script>
+      const electron = require("electron");
+      const { ipcRenderer } = electron;
+
+      const form = document.querySelector("form");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const task = document.getElementById("name").value;
+        ipcRenderer.send("item:add", task);
+      });
+    </script>
+  </body>
+</html>
